@@ -20,6 +20,7 @@ type UseCase interface {
 	CountWordsOnEachString(filePath string) (*[]int, error)
 	CountWords(filePath string, lowBound, highBound int) (int, error)
 	Ls() error
+	Clear()
 }
 
 type UserOperator struct {
@@ -117,9 +118,9 @@ func (us UserOperator) CountWords(filePath string, lowBound, highBound int) (int
 }
 
 
-func (us UserOperator) Ls() error {
+func (us UserOperator) Ls(path string) error {
 
-	entries, err := us.repository.GetEntries(".")
+	entries, err := us.repository.GetEntries(path)
 	if err != nil {
 		return nil
 	}
@@ -132,4 +133,8 @@ func (us UserOperator) Ls() error {
 		}
 	}
 	return nil
+}
+
+func (us UserOperator) Clear() {
+	fmt.Print("\033[H\033[2J")
 }

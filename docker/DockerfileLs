@@ -2,9 +2,11 @@ FROM golang:alpine AS build
 
 WORKDIR /cli
 
-COPY /t02_performance .
+COPY . .
 
 WORKDIR /cli/cmd/main
+
+RUN ls
 
 RUN go build -o cli .
 
@@ -19,6 +21,7 @@ COPY --from=build /cli/benchmarks/test_files /root/test_files
 
 WORKDIR /root
 
+CMD ["./cli", "ls"]
 
-CMD ["./cli", "count", "test_files/file_50MB.txt"]
+    
 

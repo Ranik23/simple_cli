@@ -8,10 +8,17 @@ import (
 func LsCommand(uc usecase.UserOperator) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "ls",
-		Short:   "Output the content of the current directory",
-		Example: "cli ls",
+		Short:   "Output the content of the directory",
+		Example: "cli ls <directory>",
 		RunE: func(cmd *cobra.Command, args[]string) error {
-			err := uc.Ls()
+			var path string
+			if len(args) == 0 {
+				path = "."
+			}else {
+				path = args[0]
+			}
+			err := uc.Ls(path)
+			
 			return err
 		},
 	}

@@ -32,6 +32,11 @@ docker-count:
 	sudo docker build -t cli -f $(COMPOSE_DIR)/DockerfileCount .
 	sudo docker run -it --rm cli
 
+docker-ls:
+	sudo docker build -t cli -f $(COMPOSE_DIR)/DockerfileLs .
+	sudo docker run -it --rm cli
+
+
 clear:
 	docker-compose -f $(COMPOSE_DIR)/docker-compose.yaml down
 	docker-compose -f $(COMPOSE_DIR)/docker-compose.yaml up --build --remove-orphans
