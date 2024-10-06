@@ -7,6 +7,9 @@ all: check_go build
 check_go:
 	@command -v go > /dev/null 2>&1 || { echo "Go не установлен. Установите Go для продолжения."; exit 1; }
 
+check_docker:
+	@command -v docker > /dev/null 2>&1 || { echo "Docker не установлен. Установите Docker для продолжения."; exit 1; }
+
 build_dir:
 	mkdir -p build
 
@@ -23,27 +26,26 @@ run_%: build
 
 COMPOSE_DIR = docker
 
-
-docker-cat:
+docker-cat: check_docker
 	sudo docker build -t cli -f $(COMPOSE_DIR)/DockerfileCat .
 	sudo docker run -it --rm cli
 
-docker-count:
+docker-count: check_docker
 	sudo docker build -t cli -f $(COMPOSE_DIR)/DockerfileCount .
 	sudo docker run -it --rm cli
 
-docker-ls:
+docker-ls: check_docker
 	sudo docker build -t cli -f $(COMPOSE_DIR)/DockerfileLs .
 	sudo docker run -it --rm cli
 
 
-clear:
+clear: check_docker
 	docker-compose -f $(COMPOSE_DIR)/docker-compose.yaml down
 	docker-compose -f $(COMPOSE_DIR)/docker-compose.yaml up --build --remove-orphans
 
-sudo-clear:
+sudo-clear: check_docker
 	sudo docker system prune -a
 
-sudo-compose: sudo-clear
+sudo-compose: sudo-clear check_docker
 	sudo docker-compose -f $(COMPOSE_DIR)/docker-compose.yaml down
 	sudo docker-compose -f $(COMPOSE_DIR)/docker-compose.yaml up --build --remove-orphans
