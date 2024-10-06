@@ -38,7 +38,7 @@ func NewRepository() *Repository {
 
 
 func (r *Repository) ReadFromFile(filePath string) (*file.File, error) {
-	
+
 	File, err := os.Open(filePath)
 
 	if err != nil {
@@ -69,10 +69,9 @@ func (r *Repository) ReadFromFile(filePath string) (*file.File, error) {
 }
 
 
-func (r *Repository) WriteTo(writer io.Writer, entity interface{}) error {
-
+func (r *Repository) WriteTo(writer io.Writer, entity interface{}) error {	
 	if entity, ok := entity.(fs.DirEntry); ok {
-
+		
 		red := color.New(color.FgCyan).SprintfFunc()
 
 		var err error

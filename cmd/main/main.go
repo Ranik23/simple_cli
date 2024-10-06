@@ -16,9 +16,14 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 
 	_ "github.com/prometheus/client_golang/prometheus/promhttp"
+)
+
+var (
+	ErrNoHomeDir = fmt.Errorf("failed to get home dir")
 )
 
 func main() {
@@ -28,7 +33,15 @@ func main() {
 	prom.UpdateMemoryUsageGauge(metrics.MemoryUsage)
 	PrometheusServer.StartPrometheusServer(":" + os.Getenv("PORT"))
 
-	config, err := config.LoadConfig(os.Getenv("CONFIG"))
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Println("failed to get home dir")
+		return 
+	} 
+
+	configPath := filepath.Join(homeDir, ".config", "cli", "config.yml")
+
+	config, err := config.LoadConfig(configPath)
 	if err != nil {
 		log.Fatal("failed to load the config", err)
 	}

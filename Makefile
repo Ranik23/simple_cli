@@ -13,6 +13,9 @@ build_dir:
 build: build_dir 
 	go build -o build/$(BINARY_NAME) $(SOURCES)
 	sudo cp build/$(BINARY_NAME) /usr/bin
+	mkdir -p ~/.config/cli
+	touch ~/.config/cli/config.yml
+	cp config.yml ~/.config/cli/config.yml
 
 run_%: build
 	CONFIG="config.yml" ./build/$(BINARY_NAME) cat $*  
