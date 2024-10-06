@@ -1,11 +1,11 @@
-
 BINARY_NAME = cli
-
 DATABASE_NAME = cli_storage
-
 SOURCES = cmd/main/main.go
 
-all: build
+all: check_go build
+
+check_go:
+	@command -v go > /dev/null 2>&1 || { echo "Go не установлен. Установите Go для продолжения."; exit 1; }
 
 build_dir:
 	mkdir -p build
