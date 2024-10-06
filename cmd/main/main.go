@@ -8,6 +8,7 @@ import (
 	read "cli/internal/commands/cat"
 	"cli/internal/commands/count"
 	"cli/internal/commands/count_strings"
+	"cli/internal/commands/ls"
 	"cli/internal/metrics"
 	"cli/internal/repository"
 	"cli/internal/usecase"
@@ -44,6 +45,7 @@ func main() {
 	cbr.RootCmd.AddCommand(read.CatCommand(userCase))
 	cbr.RootCmd.AddCommand(count.CountCommand(userCase))
 	cbr.RootCmd.AddCommand(count_strings.CountCommand2(userCase))
+	cbr.RootCmd.AddCommand(ls.LsCommand(*userCase))
 
 	if err := cbr.RootCmd.Execute(); err != nil {
 		fmt.Println("Command execution error:", err)

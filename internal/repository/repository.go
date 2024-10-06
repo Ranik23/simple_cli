@@ -2,16 +2,24 @@ package repository
 
 import (
 	"cli/internal/entity/file"
+	"fmt"
 	"io"
+	"io/fs"
 	"log/slog"
 	"os"
 	"time"
 	"github.com/lmittmann/tint"
+	"github.com/fatih/color"
+)
+
+var (
+	ErrUnSupportedType = fmt.Errorf("unsupported type")
 )
 
 type UserRepository interface {
 	ReadFromFile(filePath string) (*file.File, error)
-	WriteTo(io.Writer, *file.File) error
+	WriteTo(io.Writer, interface{}) error
+	GetEntries(dir string) (*[]fs.DirEntry, error)
 }
 
 
@@ -30,7 +38,7 @@ func NewRepository() *Repository {
 
 
 func (r *Repository) ReadFromFile(filePath string) (*file.File, error) {
-
+	
 	File, err := os.Open(filePath)
 
 	if err != nil {
@@ -61,12 +69,42 @@ func (r *Repository) ReadFromFile(filePath string) (*file.File, error) {
 }
 
 
-func (r *Repository) WriteTo(writer io.Writer, file *file.File) error {
+func (r *Repository) WriteTo(writer io.Writer, entity interface{}) error {
 
-	_, err := writer.Write([]byte(file.Content + "\n"))
+	if entity, ok := entity.(fs.DirEntry); ok {
 
-	if err != nil {
-		return err
+		red := color.New(color.FgCyan).SprintfFunc()
+
+		var err error
+
+		if entity.IsDir() {
+			_, err = writer.Write([]byte(red(entity.Name()) + " "))
+		} else {
+			_, err = writer.Write([]byte(entity.Name() + " "))
+		}
+
+		if err != nil {
+			return err
+		}
+		return nil
 	}
-	return nil
+
+	if entity, ok := entity.(file.File); ok {
+		_, err := writer.Write([]byte(entity.Content + "\n"))
+
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	return ErrUnSupportedType
+}
+
+
+func (r *Repository) GetEntries(dir string) (*[]fs.DirEntry, error) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+	return &entries, err
 }

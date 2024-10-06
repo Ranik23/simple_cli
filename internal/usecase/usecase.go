@@ -10,11 +10,16 @@ import (
 	"time"
 )
 
+var (
+	ErrOutOfBound = fmt.Errorf("out of bound")
+)
+
 type UseCase interface {
 	Print(filePath string) error
 	СountStrings(filePath string) (int, error)
 	CountWordsOnEachString(filePath string) (*[]int, error)
 	CountWords(filePath string, lowBound, highBound int) (int, error)
+	Ls() error
 }
 
 type UserOperator struct {
@@ -107,7 +112,7 @@ func (us UserOperator) CountWords(filePath string, lowBound, highBound int) (int
 	}
 
 	if lowBound < 0 || highBound >= number {
-		return -1, fmt.Errorf("out of bound")
+		return -1, ErrOutOfBound
 	}
 
 	answer := 0
@@ -122,4 +127,24 @@ func (us UserOperator) CountWords(filePath string, lowBound, highBound int) (int
 	}
 
 	return answer, nil
+}
+
+
+func (us UserOperator) Ls() error {
+
+	entries, err := us.repository.GetEntries(".")
+
+	if err != nil {
+		return nil
+	}
+
+	for _, entry := range *entries {
+		err = us.repository.WriteTo(os.Stdout, entry)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

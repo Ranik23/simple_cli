@@ -1,14 +1,14 @@
 package file
 
 import (
-	"os"
+	"io/fs"
 	"time"
 )
 
 type File struct {
-	Name 			 string
+	Name			 string
 	Size 			 int64
-	Mode 			 os.FileMode
+	Mode 			 fs.FileMode
 	ModificationTime time.Time
 	Content			 string
 }
