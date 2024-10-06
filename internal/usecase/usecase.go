@@ -37,53 +37,43 @@ func NewUserOperator(repository repository.UserRepository) *UserOperator {
 }
 
 func (us UserOperator) Print(filePath string) error {
-
-	file, err := us.repository.ReadFromFile(filePath)
-	if err != nil {
-		return err
-	}
-	err = us.repository.WriteTo(os.Stdout, file)
-
+	bytes, err := us.repository.ReadFromFile(filePath)
 	if err != nil {
 		return err
 	}
 
+	err = us.repository.WriteTo(os.Stdout, bytes, false)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func (us UserOperator) CountStrings(filePath string) (int, error) {
 
-	file, err := us.repository.ReadFromFile(filePath)
-
+	bytes, err := us.repository.ReadFromFile(filePath)
 	if err != nil {
 		return -1, err
 	}
 
-	numberOfStrings := len(strings.Split(file.Content, "\n")) // вот тут огромное потребление памяти
+	numberOfStrings := len(strings.Split(string(bytes), "\n"))
 
 	return numberOfStrings, nil
 }
 
 func (us UserOperator) CountWordsOnEachString(filePath string) (*[]int, error) {
 
-	file, err := us.repository.ReadFromFile(filePath)
-
+	bytes, err := us.repository.ReadFromFile(filePath)
 	if err != nil {
 		return nil, err
 	}
 
-	strs := strings.Split(file.Content, "\n")
-
+	strs := strings.Split(string(bytes), "\n")
 	number := len(strs)
-
 	var answer []int
-
 	for i := 0; i < number; i++ {
-
 		newString := strings.Replace(strings.Replace(strs[i], "\n", " ", -1), "  ", " ", -1)
-
 		n := len(strings.Split(newString, " "))
-
 		answer = append(answer, n)
 	}
 
@@ -92,13 +82,13 @@ func (us UserOperator) CountWordsOnEachString(filePath string) (*[]int, error) {
 
 func (us UserOperator) CountWords(filePath string, lowBound, highBound int) (int, error) {
 
-	file, err := us.repository.ReadFromFile(filePath)
+	bytes, err := us.repository.ReadFromFile(filePath)
 
 	if err != nil {
 		return -1, err
 	}
 
-	strs := strings.Split(file.Content, "\n")
+	strs := strings.Split(string(bytes), "\n")
 
 	number := len(strs)
 
@@ -118,11 +108,8 @@ func (us UserOperator) CountWords(filePath string, lowBound, highBound int) (int
 	answer := 0
 
 	for i := lowBound; i <= highBound; i++ {
-
 		newString := strings.Replace(strings.Replace(strs[i], "\n", " ", -1), "  ", " ", -1)
-
 		n := len(strings.Split(newString, " "))
-
 		answer += n
 	}
 
@@ -133,18 +120,16 @@ func (us UserOperator) CountWords(filePath string, lowBound, highBound int) (int
 func (us UserOperator) Ls() error {
 
 	entries, err := us.repository.GetEntries(".")
-
 	if err != nil {
 		return nil
 	}
 
-	for _, entry := range *entries {
-		err = us.repository.WriteTo(os.Stdout, entry)
 
+	for _, entry := range *entries {
+		err = us.repository.WriteTo(os.Stdout, []byte(entry.Name() + " "), entry.IsDir())
 		if err != nil {
 			return err
 		}
 	}
-
 	return nil
 }

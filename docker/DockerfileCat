@@ -16,7 +16,7 @@ RUN apk add --no-cache bash
 RUN apk --no-cache add curl
 
 COPY --from=build /cli/cmd/main/cli /root
-COPY --from=build /cli/config.yml /root
+COPY --from=build /cli/config.yml /root/.config/cli/config.yml
 COPY --from=build /cli/benchmarks/test_files /root/test_files
 
 WORKDIR /root

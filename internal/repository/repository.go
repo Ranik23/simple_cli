@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"cli/internal/entity/file"
 	"fmt"
 	"io"
 	"io/fs"
@@ -17,9 +16,9 @@ var (
 )
 
 type UserRepository interface {
-	ReadFromFile(filePath string) (*file.File, error)
-	WriteTo(io.Writer, interface{}) error
-	GetEntries(dir string) (*[]fs.DirEntry, error)
+	ReadFromFile(string) ([]byte, error)
+	WriteTo(io.Writer, []byte, bool) error
+	GetEntries(string) (*[]fs.DirEntry, error)
 }
 
 
@@ -37,68 +36,38 @@ func NewRepository() *Repository {
 }
 
 
-func (r *Repository) ReadFromFile(filePath string) (*file.File, error) {
-
-	File, err := os.Open(filePath)
-
+func (r *Repository) ReadFromFile(filePath string) ([]byte, error) {
+	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
 	}
 
-	fileInfo, err := os.Stat(filePath)
-
+	bytes, err := io.ReadAll(file)
 	if err != nil {
 		return nil, err
 	}
 
-	bytes, err := io.ReadAll(File)
-
-	if err != nil {
-		return nil, err
-	}
-
-	newFile := &file.File{
-		Name: File.Name(),
-		Size: fileInfo.Size(),
-		Mode: fileInfo.Mode(),
-		ModificationTime: fileInfo.ModTime(),
-		Content: string(bytes),
-	}
-
-	return newFile, nil
+	return bytes, nil
 }
 
 
-func (r *Repository) WriteTo(writer io.Writer, entity interface{}) error {	
-	if entity, ok := entity.(fs.DirEntry); ok {
-		
-		red := color.New(color.FgCyan).SprintfFunc()
+func (r *Repository) WriteTo(writer io.Writer, data []byte, isDir bool) error {
+	var output []byte
+	var err error
 
-		var err error
-
-		if entity.IsDir() {
-			_, err = writer.Write([]byte(red(entity.Name()) + " "))
-		} else {
-			_, err = writer.Write([]byte(entity.Name() + " "))
-		}
-
-		if err != nil {
-			return err
-		}
-		return nil
+	if isDir {
+		color := color.New(color.FgCyan).SprintFunc()
+		output = []byte(color(string(data)))
+	} else {
+		output = data
 	}
 
-	if entity, ok := entity.(file.File); ok {
-		_, err := writer.Write([]byte(entity.Content + "\n"))
-
-		if err != nil {
-			return err
-		}
-		return nil
+	_, err = writer.Write(output)
+	if err != nil {
+		return err
 	}
-	return ErrUnSupportedType
+	return nil
 }
-
 
 func (r *Repository) GetEntries(dir string) (*[]fs.DirEntry, error) {
 	entries, err := os.ReadDir(dir)
