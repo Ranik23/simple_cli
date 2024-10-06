@@ -1,0 +1,24 @@
+FROM golang:alpine AS build
+
+WORKDIR /cli
+
+COPY /t02_performance .
+
+WORKDIR /cli/cmd/main
+
+RUN go build -o cli .
+
+FROM alpine:latest
+
+RUN apk add --no-cache bash
+RUN apk --no-cache add curl
+
+COPY --from=build /cli/cmd/main/cli /root
+COPY --from=build /cli/config.yml /root
+COPY --from=build /cli/benchmarks/test_files /root/test_files
+
+WORKDIR /root
+
+
+CMD ["./cli", "count", "test_files/file_50MB.txt"]
+

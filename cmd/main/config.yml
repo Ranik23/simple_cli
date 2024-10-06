@@ -1,0 +1,7 @@
+env: prod # test, dev, prod, docker
+
+logging:
+  level: info
+
+PprofServer:
+  host: 8080

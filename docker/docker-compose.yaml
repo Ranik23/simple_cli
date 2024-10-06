@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  cli_cat:
+    build:
+      context: .
+      dockerfile: DockerfileCat
+    ports:
+      - "6060:6060"
+    environment:
+      - PORT=6060
+    networks:
+      - monitoring
+
+  cli_count:
+    build:
+      context: .
+      dockerfile: DockerfileCount
+    ports:
+      - "5050:5050"
+    environment:
+      - PORT=5050
+    networks:
+      - monitoring
+
+  prometheus: 
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring
+    depends_on:
+      - cli_cat
+      - cli_count
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - monitoring
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./grafana:/etc/grafana/provisioning/datasources
+
+networks:
+  monitoring:
+    driver: bridge
+
