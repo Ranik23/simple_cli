@@ -34,6 +34,7 @@ type Config struct {
 	Env 		string 		`yaml:"env"`
 	Logging 	Logging 	`yaml:"logging"`
 	PprofServer PprofServer `yaml:"PprofServer"`
+	DataBase	DataBase    `yaml:"database"`
 }
 
 type Logging struct {
@@ -42,4 +43,12 @@ type Logging struct {
 
 type PprofServer struct {
 	Host string `yaml:"host"`
+}
+
+type DataBase struct {
+	Host 	 string `yaml:"host"`
+	Port 	 int    `yaml:"port"`
+	User 	 string `yaml:"user"`
+	Password string `yaml:"password"`
+	DBName	 string `yaml:"dbname"`
 }

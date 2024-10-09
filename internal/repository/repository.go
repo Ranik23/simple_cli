@@ -62,7 +62,7 @@ func (r *Repository) WriteTo(writer io.Writer, data []byte, isDir bool) error {
 		output = data
 	}
 
-	_, err = writer.Write(output)
+	_, err = writer.Write([]byte(string(output) + "\n"))
 	if err != nil {
 		return err
 	}
